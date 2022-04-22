@@ -189,7 +189,7 @@ pub(super) fn runner(inner_state_arc: Arc<Mutex<InnerState>>) {
         }
 
         // Poll (block until ready to write)
-        let status: i32 = unsafe { libc::poll(pollfds.as_mut_ptr(), nfds as u32, -1) };
+        let status: i32 = unsafe { libc::poll(pollfds.as_mut_ptr(), (nfds as u32).into(), -1) };
         if status < 0 {
             let mut inner_state = inner_state_arc.lock().unwrap();
             inner_state.error(backend_specific_error(format!(
@@ -294,7 +294,7 @@ pub(super) fn runner(inner_state_arc: Arc<Mutex<InnerState>>) {
                     }
                 }
 
-                if bytes_written <= 0 {
+                if bytes_written == 0 {
                     inner_state.error(backend_specific_error("no bytes written; EOF?"));
                     break;
                 }
@@ -356,7 +356,7 @@ pub(super) fn runner(inner_state_arc: Arc<Mutex<InnerState>>) {
                     }
                 }
 
-                if bytes_read <= 0 {
+                if bytes_read == 0 {
                     inner_state.error(backend_specific_error("no bytes read; EOF?"));
                     break;
                 }
